@@ -145,6 +145,22 @@ def reporte():
         usados=usados,
         lista_usados=lista_usados,
     )
+@app.route("/reactivar/<codigo_id>")
+def reactivar_boleto(codigo_id):
+    if "usuario" not in session:
+        return redirect(url_for("login"))
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE boletos SET estado = 'DISPONIBLE', fecha_uso = NULL WHERE id = ?",
+        (codigo_id,),
+    )
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("reporte"))
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+    

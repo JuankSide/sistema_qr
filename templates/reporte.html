@@ -53,18 +53,22 @@
         {% if lista_usados %}
         <table>
             <thead>
-                <tr>
-                    <th>Código ID</th>
-                    <th>Estado</th>
-                    <th>Fecha / Hora de Ingreso</th>
+                <<tr>
+    <th>Código ID</th>
+    <th>Estado</th>
+    <th>Fecha / Hora</th>
+    <th>Acción</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for boleto in lista_usados %}
-                <tr>
-                    <td><strong>{{ boleto[0] }}</strong></td>
-                    <td><span class="badge-usado">USADO</span></td>
-                    <td>{{ boleto[1] if boleto[1] else 'Reciente' }}</td>
+            <!-- Y dentro del recorrido {% for boleto in lista_usados %}: -->
+<tr>
+    <td><strong>{{ boleto[0] }}</strong></td>
+    <td><span class="badge-usado">USADO</span></td>
+    <td>{{ boleto[1] if boleto[1] else 'Reciente' }}</td>
+    <td>
+        <a href="/reactivar/{{ boleto[0] }}" style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; text-decoration: none; font-size: 0.8rem;">🔄 Reactivar</a>
+    </td>
+</tr>
                 </tr>
                 {% endfor %}
             </tbody>
