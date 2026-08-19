@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escáner de Evento</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background: #f4f4f9; }
+        #reader { width: 100%; max-width: 400px; margin: auto; }
+        #resultado { margin-top: 20px; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; display: none; }
+        .exito { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .usado { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .no_existe { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+    </style>
+</head>
+<body>
+    <h2>Escáner de Entrada</h2>
+    <div id="reader"></div>
+    <div id="resultado"></div>
+    <p><a href="/logout">Cerrar Sesión</a></p>
+
+    <script>
+        let bloqueado = false;
+
+        function onScanSuccess(decodedText) {
+            if (bloqueado) return; // Evita peticiones dobles seguidas
+            bloqueado = True;
+
+            fetch('/api/validar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ codigo_id: decodedText })
+            })
+            .then(res => res.json())
+            .then(data => {
+                let div = document.getElementById('resultado');
+                div.style.display = 'block';
+                div.innerText = data.mensaje;
+                div.className = data.status;
+
+                // Desbloquea para escanear el siguiente boleto después de 3 segundos
+                setTimeout(() => {
+                    div.style.display = 'none';
+                    bloqueado = false;
+                }, 3000);
+            });
+        }
+
+        let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+        html5QrcodeScanner.render(onScanSuccess);
+    </script>
+</body>
+</html>
