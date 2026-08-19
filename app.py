@@ -9,7 +9,7 @@ from flask import (
     url_for,
 )
 
-app = Flask(_name_)
+app = Flask(__name__)
 app.secret_key = "clave_secreta_sistema_qr"
 DB_PATH = "evento.db"
 
@@ -118,6 +118,6 @@ def validar_qr():
     )
 
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     preparar_base_datos()
     app.run(host="0.0.0.0", port=5000, debug=True)
