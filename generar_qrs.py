@@ -17,8 +17,8 @@ cursor.execute('''
 # 2. Crear la carpeta para los códigos QR
 os.makedirs('codigos_qr', exist_ok=True)
 
-# 3. Insertar 300 registros y generar las imágenes
-print("Generando 300 códigos QR...")
+# 3. Insertar 3000 registros y generar las imágenes
+print("Generando 3000 códigos QR...")
 for i in range(1, 3001):
     codigo_id = f"B{i:03d}"  # Genera formato: B001, B002... B300
     
