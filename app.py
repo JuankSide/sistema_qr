@@ -13,23 +13,8 @@ app = Flask(__name__)
 app.secret_key = "clave_secreta_sistema_qr"
 DB_PATH = "evento.db"
 
-# Usuario y contraseña para el personal de acceso
 USUARIO_VALIDO = "admin"
 CLAVE_VALIDA = "1234"
-
-
-def preparar_base_datos():
-    """Asegura que la tabla 'qrs' tenga la columna 'estado'"""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    try:
-        cursor.execute(
-            "ALTER TABLE qrs ADD COLUMN estado TEXT DEFAULT 'DISPONIBLE'"
-        )
-        conn.commit()
-    except sqlite3.OperationalError:
-        pass
-    conn.close()
 
 
 @app.route("/")
@@ -76,48 +61,90 @@ def validar_qr():
         )
 
     datos = request.get_json()
-    contenido_qr = datos.get("codigo", "").strip()
+    codigo_qr = datos.get("codigo", "").strip()
+
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        # Busca el código en la tabla 'boletos'
+        cursor.execute(
+            "SELECT id, estado FROM boletos WHERE id = ?", (codigo_qr,)
+        )
+        resultado = cursor.fetchone()
+
+        if not resultado:
+            conn.close()
+            return jsonify(
+                {
+                    "status": "error",
+                    "mensaje": f"❌ CÓDIGO INVÁLIDO: '{codigo_qr}' no existe.",
+                }
+            )
+
+        boleto_id, estado = resultado
+
+        if estado == "USADO":
+            conn.close()
+            return jsonify(
+                {
+                    "status": "warning",
+                    "mensaje": f"⚠️ ALERTA: El boleto {boleto_id} YA FUE UTILIZADO.",
+                }
+            )
+
+        # Marca como USADO y guarda la fecha y hora de acceso
+        cursor.execute(
+            "UPDATE boletos SET estado = 'USADO', fecha_uso = CURRENT_TIMESTAMP WHERE id = ?",
+            (boleto_id,),
+        )
+        conn.commit()
+        conn.close()
+
+        return jsonify(
+            {
+                "status": "exito",
+                "mensaje": f"✅ ACCESO PERMITIDO: Boleto válido ({boleto_id}).",
+            }
+        )
+
+    except sqlite3.Error as e:
+        return jsonify(
+            {"status": "error", "mensaje": f"❌ Error de base de datos: {e}"}
+        )
+
+@app.route("/reporte")
+def reporte():
+    if "usuario" not in session:
+        return redirect(url_for("login"))
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
+    # Contar disponibles y usados
+    cursor.execute("SELECT COUNT(*) FROM boletos WHERE estado = 'DISPONIBLE'")
+    disponibles = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM boletos WHERE estado = 'USADO'")
+    usados = cursor.fetchone()[0]
+
+    total = disponibles + usados
+
+    # Obtener lista de los boletos ya ingresados (los más recientes primero)
     cursor.execute(
-        "SELECT id, estado FROM qrs WHERE contenido = ?", (contenido_qr,)
+        "SELECT id, fecha_uso FROM boletos WHERE estado = 'USADO' ORDER BY fecha_uso DESC"
     )
-    resultado = cursor.fetchone()
+    lista_usados = cursor.fetchall()
 
-    if not resultado:
-        conn.close()
-        return jsonify(
-            {
-                "status": "error",
-                "mensaje": "❌ CÓDIGO INVÁLIDO: No existe en la base de datos.",
-            }
-        )
-
-    qr_id, estado = resultado
-
-    if estado == "USADO":
-        conn.close()
-        return jsonify(
-            {
-                "status": "warning",
-                "mensaje": f"⚠️ ALERTA: El boleto ({contenido_qr}) YA FUE UTILIZADO.",
-            }
-        )
-
-    cursor.execute("UPDATE qrs SET estado = 'USADO' WHERE id = ?", (qr_id,))
-    conn.commit()
     conn.close()
 
-    return jsonify(
-        {
-            "status": "exito",
-            "mensaje": f"✅ ACCESO PERMITIDO: Boleto válido ({contenido_qr}).",
-        }
+    return render_template(
+        "reporte.html",
+        total=total,
+        disponibles=disponibles,
+        usados=usados,
+        lista_usados=lista_usados,
     )
 
-
 if __name__ == "__main__":
-    preparar_base_datos()
     app.run(host="0.0.0.0", port=5000, debug=True)

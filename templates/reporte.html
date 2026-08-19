@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Boletos</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f9; padding: 20px; margin: 0; }
+        .container { max-width: 700px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .btn { padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; color: white; font-weight: bold; }
+        .btn-primary { background: #007bff; }
+        .btn-danger { background: #dc3545; }
+        .cards { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
+        .card { flex: 1; min-width: 140px; background: #f8f9fa; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #e9ecef; }
+        .card h3 { margin: 0 0 5px 0; font-size: 0.9rem; color: #6c757d; text-transform: uppercase; }
+        .card p { margin: 0; font-size: 1.8rem; font-weight: bold; }
+        .card.disponibles p { color: #28a745; }
+        .card.usados p { color: #dc3545; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border-bottom: 1px solid #e9ecef; padding: 12px; text-align: left; }
+        th { background-color: #f8f9fa; color: #495057; }
+        tr:hover { background-color: #f1f3f5; }
+        .badge-usado { background: #ffe3e3; color: #c92a2a; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>📊 Reporte de Asistencia</h2>
+            <div>
+                <a href="/escanear" class="btn btn-primary">📷 Escáner</a>
+                <a href="/logout" class="btn btn-danger">Salir</a>
+            </div>
+        </div>
+
+        <div class="cards">
+            <div class="card">
+                <h3>Total</h3>
+                <p>{{ total }}</p>
+            </div>
+            <div class="card disponibles">
+                <h3>Disponibles</h3>
+                <p>{{ disponibles }}</p>
+            </div>
+            <div class="card usados">
+                <h3>Ingresados</h3>
+                <p>{{ usados }}</p>
+            </div>
+        </div>
+
+        <h3>📋 Boletos Utilizados ({{ usados }})</h3>
+        {% if lista_usados %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Código ID</th>
+                    <th>Estado</th>
+                    <th>Fecha / Hora de Ingreso</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for boleto in lista_usados %}
+                <tr>
+                    <td><strong>{{ boleto[0] }}</strong></td>
+                    <td><span class="badge-usado">USADO</span></td>
+                    <td>{{ boleto[1] if boleto[1] else 'Reciente' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color: #666; text-align: center; margin-top: 30px;">Aún no se ha escaneado ningún boleto.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
