@@ -53,12 +53,12 @@ def logout():
     return redirect(url_for("login"))
 
 
+# Reemplaza la función validar_qr en tu app.py con esta versión mejorada
+
 @app.route("/api/validar", methods=["POST"])
 def validar_qr():
     if "usuario" not in session:
-        return jsonify(
-            {"status": "error", "mensaje": "⚠️ Sesión expirada. Inicie sesión."}
-        )
+        return jsonify({"status": "error", "mensaje": "⚠️ Sesión expirada. Inicie sesión nuevamente."})
 
     datos = request.get_json()
     codigo_qr = datos.get("codigo", "").strip()
@@ -67,33 +67,28 @@ def validar_qr():
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
 
-        # Busca el código en la tabla 'boletos'
-        cursor.execute(
-            "SELECT id, estado FROM boletos WHERE id = ?", (codigo_qr,)
-        )
+        cursor.execute("SELECT id, estado FROM boletos WHERE id = ?", (codigo_qr,))
         resultado = cursor.fetchone()
 
         if not resultado:
             conn.close()
-            return jsonify(
-                {
-                    "status": "error",
-                    "mensaje": f"❌ CÓDIGO INVÁLIDO: '{codigo_qr}' no existe.",
-                }
-            )
+            return jsonify({
+                "status": "invalid",
+                "titulo": "⛔ CÓDIGO NO ENCONTRADO",
+                "mensaje": f"El código '{codigo_qr}' no existe en el sistema."
+            })
 
         boleto_id, estado = resultado
 
         if estado == "USADO":
             conn.close()
-            return jsonify(
-                {
-                    "status": "warning",
-                    "mensaje": f"⚠️ ALERTA: El boleto {boleto_id} YA FUE UTILIZADO.",
-                }
-            )
+            return jsonify({
+                "status": "warning",
+                "titulo": "🚫 INGRESO DENEGADO",
+                "mensaje": f"¡ALERTA! El boleto #{boleto_id} YA FUE UTILIZADO previamente."
+            })
 
-        # Marca como USADO y guarda la fecha y hora de acceso
+        # Marcar como usado
         cursor.execute(
             "UPDATE boletos SET estado = 'USADO', fecha_uso = CURRENT_TIMESTAMP WHERE id = ?",
             (boleto_id,),
@@ -101,17 +96,14 @@ def validar_qr():
         conn.commit()
         conn.close()
 
-        return jsonify(
-            {
-                "status": "exito",
-                "mensaje": f"✅ ACCESO PERMITIDO: Boleto válido ({boleto_id}).",
-            }
-        )
+        return jsonify({
+            "status": "valid",
+            "titulo": "🎉 ¡INGRESO PERMITIDO!",
+            "mensaje": f"Boleto #{boleto_id} verificado con éxito. Pase adelante."
+        })
 
     except sqlite3.Error as e:
-        return jsonify(
-            {"status": "error", "mensaje": f"❌ Error de base de datos: {e}"}
-        )
+        return jsonify({"status": "error", "titulo": "❌ ERROR", "mensaje": f"Error de DB: {e}"})
 
 @app.route("/reporte")
 def reporte():

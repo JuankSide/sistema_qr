@@ -3,200 +3,122 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Control de Acceso QR</title>
+  <title>Control de Acceso</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
-    :root {
-      --primary-color: #0d6efd;
-      --success-color: #28a745;
-      --warning-color: #ffc107;
-      --danger-color: #dc3545;
-      --bg-color: #f4f6f9;
-    }
-
     body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      margin: 0;
+      padding: 15px;
+      background-color: #0f172a;
+      color: white;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      margin: 0;
-      background-color: var(--bg-color);
-      padding: 15px;
       box-sizing: border-box;
     }
 
-    .card {
-      background: #ffffff;
-      padding: 24px;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    .nav-bar {
       width: 100%;
-      max-width: 480px;
-      text-align: center;
-    }
-
-    .header-bar {
+      max-width: 450px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
       margin-bottom: 15px;
     }
 
-    .btn-logout {
-      background: #6c757d;
-      color: white;
-      padding: 6px 12px;
-      border-radius: 6px;
+    .btn-nav {
+      background: #334155;
+      color: #f8fafc;
+      padding: 8px 14px;
+      border-radius: 8px;
       text-decoration: none;
       font-size: 0.85rem;
-      font-weight: bold;
+      font-weight: 600;
+    }
+
+    .card {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 450px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
 
     #reader {
       width: 100%;
       border-radius: 12px;
       overflow: hidden;
-      border: 2px dashed #dee2e6;
-      background-color: #fafafa;
+      border: 2px solid #334155;
+      background: #0f172a;
     }
 
-    .status-box {
-      margin-top: 15px;
-      padding: 14px;
-      border-radius: 10px;
-      font-weight: 600;
+    /* Targeta de Alerta de Estado Grande */
+    .status-card {
       display: none;
-      font-size: 0.95rem;
-    }
-
-    .status-loading { background: #e2e3e5; color: #383d41; display: block; }
-    .status-valid   { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block; }
-    .status-invalid { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
-    .status-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; display: block; }
-
-    .actions, .admin-actions {
-      display: flex;
-      gap: 10px;
       margin-top: 15px;
+      padding: 20px;
+      border-radius: 12px;
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    button {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
+    .status-card h2 { margin: 0 0 8px 0; font-size: 1.4rem; }
+    .status-card p { margin: 0; font-size: 1rem; opacity: 0.9; }
 
-    .btn-copy     { background: var(--primary-color); color: white; }
-    .btn-scan     { background: #6c757d; color: white; }
-    .btn-info     { background: #17a2b8; color: white; }
-    .btn-reset-db { background: var(--danger-color); color: white; }
+    .status-valid   { background: #15803d; color: #f0fdf4; border: 2px solid #22c55e; }
+    .status-warning { background: #b45309; color: #fffbeb; border: 2px solid #f59e0b; }
+    .status-invalid { background: #b91c1c; color: #fef2f2; border: 2px solid #ef4444; }
 
-    .admin-section {
-      margin-top: 25px;
-      border-top: 2px dashed #e9ecef;
-      padding-top: 20px;
-    }
-
-    .metrics-box {
-      display: flex;
-      justify-content: space-around;
-      background: #f8f9fa;
-      padding: 12px;
-      border-radius: 10px;
-      margin-top: 12px;
-      border: 1px solid #e9ecef;
-    }
-
-    .metrics-box div { display: flex; flex-direction: column; align-items: center; }
-    .metrics-num { font-size: 1.25rem; font-weight: 700; color: #212529; margin-top: 4px; }
-
-    .table-container {
+    .btn-reset {
       margin-top: 15px;
-      max-height: 200px;
-      overflow-y: auto;
-      border: 1px solid #dee2e6;
-      border-radius: 8px;
-    }
-
-    .admin-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    .admin-table th, .admin-table td { padding: 10px 8px; text-align: center; border-bottom: 1px solid #dee2e6; }
-    .admin-table th { background-color: #f8f9fa; position: sticky; top: 0; }
-
-    .btn-sm-reactivar {
-      background: var(--success-color);
+      width: 100%;
+      padding: 14px;
+      background: #3b82f6;
       color: white;
-      padding: 6px 10px;
-      font-size: 0.75rem;
-      border-radius: 6px;
       border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
       cursor: pointer;
+      display: none;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
     }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <div class="header-bar">
-      <h2>🎟️ Control de Acceso</h2>
-      <a href="/logout" class="btn-logout">Cerrar Sesión</a>
-    </div>
+  <div class="nav-bar">
+    <a href="/reporte" class="btn-nav">📊 Ver Reportes</a>
+    <a href="/logout" class="btn-nav" style="background: #991b1b;">🚪 Salir</a>
+  </div>
 
-    <p>Apunta con la cámara al código QR para verificarlo</p>
+  <div class="card">
+    <h2 style="margin-top:0;">🎟️ Escáner de Entradas</h2>
     
     <div id="reader"></div>
-    <div id="statusBox" class="status-box"></div>
 
-    <div class="actions">
-      <button id="btnCopy" class="btn-copy" onclick="copiarCodigo()" style="display:none;">Copiar Código</button>
-      <button id="btnReset" class="btn-scan" onclick="reiniciarEscaneo()" style="display:none;">Escanear Otro</button>
+    <div id="statusCard" class="status-card">
+      <h2 id="statusTitle"></h2>
+      <p id="statusMsg"></p>
     </div>
 
-    <!-- PANEL ADMINISTRATIVO INTEGRADO -->
-    <div class="admin-section">
-      <h3>⚙️ Panel de Administración</h3>
-      
-      <div class="admin-actions">
-        <button class="btn-info" onclick="cargarResumenAdmin()">Actualizar Lista</button>
-        <button class="btn-reset-db" onclick="reactivarTodosBoletos()">Reactivar Todos</button>
-      </div>
-
-      <div class="metrics-box">
-        <div><span>Total</span><span id="metricTotal" class="metrics-num">0</span></div>
-        <div><span>🟢 Disponibles</span><span id="metricDisponibles" class="metrics-num">0</span></div>
-        <div><span>🟡 Usados</span><span id="metricUsados" class="metrics-num">0</span></div>
-      </div>
-
-      <div class="table-container">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Boleto #</th>
-              <th>Estado</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody id="tablaUsadosBody">
-            <tr><td colspan="3">Cargando...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <button id="btnReset" class="btn-reset" onclick="reiniciarEscaneo()">📷 Escanear Siguiente Boleto</button>
   </div>
 
   <script>
     let html5QrcodeScanner = null;
-    let codigoActual = "";
     let isProcessing = false;
 
-    async function verificarEstadoQR(codigo) {
-      const statusBox = document.getElementById('statusBox');
-      statusBox.className = "status-box status-loading";
-      statusBox.innerText = "⏳ Consultando base de datos...";
+    async function validarCodigo(codigo) {
+      const statusCard = document.getElementById('statusCard');
+      const statusTitle = document.getElementById('statusTitle');
+      const statusMsg = document.getElementById('statusMsg');
 
       try {
         const response = await fetch("/api/validar", {
@@ -206,23 +128,17 @@
         });
         
         const data = await response.json();
-        
-        if (data.status === "exito") {
-          statusBox.className = "status-box status-valid";
-        } else if (data.status === "warning") {
-          statusBox.className = "status-box status-warning";
-        } else {
-          statusBox.className = "status-box status-invalid";
-        }
-        
-        statusBox.innerText = data.mensaje;
-        cargarResumenAdmin();
+
+        statusCard.className = "status-card status-" + (data.status || 'invalid');
+        statusTitle.innerText = data.titulo || "PROCESADO";
+        statusMsg.innerText = data.mensaje;
+        statusCard.style.display = "block";
 
       } catch (error) {
-        statusBox.className = "status-box status-invalid";
-        statusBox.innerText = "⚠️ Error al conectar con el servidor";
-      } finally {
-        isProcessing = false;
+        statusCard.className = "status-card status-invalid";
+        statusTitle.innerText = "❌ ERROR DE RED";
+        statusMsg.innerText = "No se pudo comunicar con el servidor.";
+        statusCard.style.display = "block";
       }
     }
 
@@ -230,22 +146,17 @@
       if (isProcessing) return;
       isProcessing = true;
 
-      codigoActual = decodedText;
-
       if (html5QrcodeScanner) {
-        try { await html5QrcodeScanner.clear(); } catch (err) {}
+        try { await html5QrcodeScanner.clear(); } catch (e) {}
       }
 
-      document.getElementById('btnCopy').style.display = "block";
       document.getElementById('btnReset').style.display = "block";
-
-      verificarEstadoQR(decodedText);
+      validarCodigo(decodedText);
     }
 
     function iniciarEscaner() {
       isProcessing = false;
-      document.getElementById('statusBox').style.display = "none";
-      document.getElementById('btnCopy').style.display = "none";
+      document.getElementById('statusCard').style.display = "none";
       document.getElementById('btnReset').style.display = "none";
 
       html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
@@ -256,76 +167,11 @@
       html5QrcodeScanner.render(onScanSuccess, () => {});
     }
 
-    function reiniciarEscaneo() { iniciarEscaner(); }
-
-    async function copiarCodigo() {
-      if (!codigoActual) return;
-      await navigator.clipboard.writeText(codigoActual);
-      alert("📋 Código copiado");
-    }
-
-    async function cargarResumenAdmin() {
-      const tbody = document.getElementById('tablaUsadosBody');
-      try {
-        const response = await fetch('/api/resumen');
-        const data = await response.json();
-
-        document.getElementById('metricTotal').innerText = data.total ?? 0;
-        document.getElementById('metricDisponibles').innerText = data.disponibles ?? 0;
-        document.getElementById('metricUsados').innerText = data.total_usados ?? 0;
-
-        if (!data.usados || data.usados.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="3">🟢 No hay boletos usados</td></tr>';
-        } else {
-          let html = '';
-          data.usados.forEach(item => {
-            html += `
-              <tr>
-                <td><strong>${item.codigo}</strong></td>
-                <td><span style="color:#856404; font-weight:bold;">USADO</span></td>
-                <td>
-                  <button class="btn-sm-reactivar" onclick="reactivarUnBoleto('${item.codigo}')">
-                    Reactivar
-                  </button>
-                </td>
-              </tr>`;
-          });
-          tbody.innerHTML = html;
-        }
-      } catch (error) {
-        tbody.innerHTML = '<tr><td colspan="3">❌ Error al cargar datos</td></tr>';
-      }
-    }
-
-    async function reactivarUnBoleto(codigo) {
-      try {
-        // Redirige o llama a la ruta Flask existente
-        const response = await fetch(`/reactivar/${codigo}`);
-        if (response.ok) {
-          cargarResumenAdmin();
-        }
-      } catch (error) {
-        alert("❌ Error al reactivar el boleto.");
-      }
-    }
-
-    async function reactivarTodosBoletos() {
-      if (!confirm("¿Seguro que deseas reactivar TODOS los códigos QR?")) return;
-
-      try {
-        const response = await fetch('/api/reactivar_todos');
-        const data = await response.json();
-        alert(data.mensaje);
-        cargarResumenAdmin();
-      } catch (error) {
-        alert("❌ Error al reactivar todos los códigos.");
-      }
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
+    function reiniciarEscaneo() {
       iniciarEscaner();
-      cargarResumenAdmin();
-    });
+    }
+
+    window.addEventListener('DOMContentLoaded', iniciarEscaner);
   </script>
 </body>
 </html>
