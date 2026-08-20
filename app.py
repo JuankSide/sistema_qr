@@ -191,6 +191,53 @@ def validar_qr():
         }
     )
 
+# --- REACTIVAR UN BOLETO ESPECÍFICO ---
+@app.route("/api/reactivar_boleto", methods=["POST"])
+def reactivar_boleto():
+    if "usuario" not in session:
+        return jsonify(
+            {"status": "error", "mensaje": "No autorizado."}
+        ), 401
+
+    datos = request.get_json(silent=True) or {}
+    codigo_qr = datos.get("codigo", "").strip()
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE boletos SET estado = 'DISPONIBLE' WHERE id = ?", (codigo_qr,)
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify(
+        {
+            "status": "exito",
+            "mensaje": f"Boleto {codigo_qr} reactivado correctamente.",
+        }
+    )
+
+
+# --- RESETEAR TODOS LOS BOLETOS A DISPONIBLE ---
+@app.route("/api/resetear_todos", methods=["POST"])
+def resetear_todos():
+    if "usuario" not in session:
+        return jsonify(
+            {"status": "error", "mensaje": "No autorizado."}
+        ), 401
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE boletos SET estado = 'DISPONIBLE'")
+    conn.commit()
+    conn.close()
+
+    return jsonify(
+        {
+            "status": "exito",
+            "mensaje": "Todos los boletos han sido marcados como DISPONIBLES.",
+        }
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)

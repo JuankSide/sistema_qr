@@ -1,81 +1,112 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte de Boletos</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f9; padding: 20px; margin: 0; }
-        .container { max-width: 700px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-        .btn { padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; color: white; font-weight: bold; }
-        .btn-primary { background: #007bff; }
-        .btn-danger { background: #dc3545; }
-        .cards { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
-        .card { flex: 1; min-width: 140px; background: #f8f9fa; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #e9ecef; }
-        .card h3 { margin: 0 0 5px 0; font-size: 0.9rem; color: #6c757d; text-transform: uppercase; }
-        .card p { margin: 0; font-size: 1.8rem; font-weight: bold; }
-        .card.disponibles p { color: #28a745; }
-        .card.usados p { color: #dc3545; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border-bottom: 1px solid #e9ecef; padding: 12px; text-align: left; }
-        th { background-color: #f8f9fa; color: #495057; }
-        tr:hover { background-color: #f1f3f5; }
-        .badge-usado { background: #ffe3e3; color: #c92a2a; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reporte y Gestión de Boletos</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #0f172a; color: white; margin: 0; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .btn { padding: 8px 16px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
+    .btn-blue { background: #3b82f6; color: white; }
+    .btn-green { background: #22c55e; color: white; }
+    .btn-red { background: #ef4444; color: white; }
+    .btn-sm { padding: 4px 10px; font-size: 0.8rem; }
+    .stats-card { display: flex; gap: 15px; margin-bottom: 20px; }
+    .card { background: #1e293b; padding: 15px; border-radius: 8px; flex: 1; text-align: center; }
+    table { width: 100%; border-collapse: collapse; background: #1e293b; border-radius: 8px; overflow: hidden; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; }
+    th { background: #334155; }
+    .status-disponible { color: #4ade80; font-weight: bold; }
+    .status-usado { color: #f87171; font-weight: bold; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h2>📊 Reporte de Asistencia</h2>
-            <div>
-                <a href="/escanear" class="btn btn-primary">📷 Escáner</a>
-                <a href="/logout" class="btn btn-danger">Salir</a>
-            </div>
-        </div>
 
-        <div class="cards">
-            <div class="card">
-                <h3>Total</h3>
-                <p>{{ total }}</p>
-            </div>
-            <div class="card disponibles">
-                <h3>Disponibles</h3>
-                <p>{{ disponibles }}</p>
-            </div>
-            <div class="card usados">
-                <h3>Ingresados</h3>
-                <p>{{ usados }}</p>
-            </div>
-        </div>
+  <div class="container">
+    <header>
+      <h2>📊 Reporte de Boletos</h2>
+      <div>
+        <a href="/escanear" class="btn btn-blue">📱 Ir al Escáner</a>
+        <button class="btn btn-red" onclick="resetearTodos()">🔄 Resetear Todos</button>
+      </div>
+    </header>
 
-        <h3>📋 Boletos Utilizados ({{ usados }})</h3>
-        {% if lista_usados %}
-        <table>
-            <thead>
-                <<tr>
-    <th>Código ID</th>
-    <th>Estado</th>
-    <th>Fecha / Hora</th>
-    <th>Acción</th>
-                </tr>
-            </thead>
-            <!-- Y dentro del recorrido {% for boleto in lista_usados %}: -->
-<tr>
-    <td><strong>{{ boleto[0] }}</strong></td>
-    <td><span class="badge-usado">USADO</span></td>
-    <td>{{ boleto[1] if boleto[1] else 'Reciente' }}</td>
-    <td>
-        <a href="/reactivar/{{ boleto[0] }}" style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; text-decoration: none; font-size: 0.8rem;">🔄 Reactivar</a>
-    </td>
-</tr>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p style="color: #666; text-align: center; margin-top: 30px;">Aún no se ha escaneado ningún boleto.</p>
-        {% endif %}
+    <div class="stats-card">
+      <div class="card">
+        <h3>Total</h3>
+        <p style="font-size:1.5rem; font-weight:bold;">{{ total }}</p>
+      </div>
+      <div class="card">
+        <h3>Disponibles</h3>
+        <p style="font-size:1.5rem; font-weight:bold; color:#4ade80;">{{ disponibles }}</p>
+      </div>
+      <div class="card">
+        <h3>Usados</h3>
+        <p style="font-size:1.5rem; font-weight:bold; color:#f87171;">{{ usados }}</p>
+      </div>
     </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Código ID</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for boleto in boletos %}
+        <tr>
+          <td><strong>{{ boleto[0] }}</strong></td>
+          <td>
+            <span class="{% if boleto[1] == 'DISPONIBLE' %}status-disponible{% else %}status-usado{% endif %}">
+              {{ boleto[1] }}
+            </span>
+          </td>
+          <td>
+            {% if boleto[1] == 'USADO' %}
+            <button class="btn btn-green btn-sm" onclick="reactivarBoleto('{{ boleto[0] }}')">Reactivar</button>
+            {% else %}
+            <span style="color:#64748b; font-size:0.85rem;">Listo para usar</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    async function reactivarBoleto(codigo) {
+      if (!confirm(`¿Reactivar el boleto ${codigo}?`)) return;
+
+      const res = await fetch('/api/reactivar_boleto', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codigo: codigo })
+      });
+      const data = await res.json();
+      if (data.status === 'exito') {
+        location.reload();
+      } else {
+        alert(data.mensaje);
+      }
+    }
+
+    async function resetearTodos() {
+      if (!confirm('⚠️ ¿Estás seguro de que deseas marcar TODOS los boletos como DISPONIBLES?')) return;
+
+      const res = await fetch('/api/resetear_todos', { method: 'POST' });
+      const data = await res.json();
+      if (data.status === 'exito') {
+        location.reload();
+      } else {
+        alert(data.mensaje);
+      }
+    }
+  </script>
+
 </body>
 </html>
