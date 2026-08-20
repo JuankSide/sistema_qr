@@ -160,6 +160,49 @@ def reactivar_boleto(codigo_id):
     conn.close()
 
     return redirect(url_for("reporte"))
+# --- NUEVAS RUTAS PARA LA API DEL PANEL DE ADMINISTRACIÓN ---
+
+@app.route("/api/resumen", methods=["GET"])
+def api_resumen():
+    if "usuario" not in session:
+        return jsonify({"error": "No autorizado"}), 401
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT COUNT(*) FROM boletos WHERE estado = 'DISPONIBLE'")
+    disponibles = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM boletos WHERE estado = 'USADO'")
+    usados = cursor.fetchone()[0]
+
+    total = disponibles + usados
+
+    cursor.execute("SELECT id FROM boletos WHERE estado = 'USADO' ORDER BY fecha_uso DESC")
+    usados_rows = cursor.fetchall()
+    lista_usados = [{"codigo": row[0]} for row in usados_rows]
+
+    conn.close()
+
+    return jsonify({
+        "total": total,
+        "disponibles": disponibles,
+        "total_usados": usados,
+        "usados": lista_usados
+    })
+
+@app.route("/api/reactivar_todos", methods=["GET"])
+def reactivar_todos():
+    if "usuario" not in session:
+        return jsonify({"error": "No autorizado"}), 401
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE boletos SET estado = 'DISPONIBLE', fecha_uso = NULL")
+    conn.commit()
+    conn.close()
+
+    return jsonify({"mensaje": "🔄 Todos los boletos han sido reactivados a DISPONIBLE."})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
