@@ -89,7 +89,7 @@ def login():
         usuario = request.form.get("usuario")
         password = request.form.get("password")
         # Credenciales de acceso simples
-        if usuario == "admin" and password == "1234":
+        if usuario == "admin1" and password == "0987":
             session["usuario"] = usuario
             return redirect(url_for("escanear"))
         return render_template("login.html", error="Credenciales incorrectas")
