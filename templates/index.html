@@ -228,11 +228,15 @@
 <body>
 
   <!-- Encabezado -->
+<!-- Encabezado con acceso directo al Escáner/Login -->
   <header>
     <div class="logo-sitio">LigaPro 2026</div>
-    <nav>
+    <nav style="display: flex; gap: 10px; align-items: center;">
       <button class="tab-btn active" onclick="openTab('inicio')">Inicio & Onces</button>
       <button class="tab-btn" onclick="openTab('pronóstico')">Pronósticos</button>
+      
+      <!-- Botón de acceso al Panel Admin / Escáner -->
+      <a href="/login" target="_blank" style="background: #e11d48; color: white; padding: 8px 14px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 0.85rem;">🔒 Admin / Escáner</a>
     </nav>
   </header>
 

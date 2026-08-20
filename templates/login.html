@@ -63,11 +63,11 @@
   <div class="login-card">
     <h2>Control de Acceso</h2>
     
-    <form action="/login" method="POST">
-      <input type="text" name="usuario" class="form-input" placeholder="Usuario" required>
-      <input type="password" name="password" class="form-input" placeholder="Contraseña" required>
-      <button type="submit" class="btn-login">Ingresar</button>
-    </form>
+<form action="/login" method="POST">
+  <input type="text" name="usuario" class="form-input" placeholder="Usuario" required>
+  <input type="password" name="password" class="form-input" placeholder="Contraseña" required>
+  <button type="submit" class="btn-login">Ingresar</button>
+</form>
 
     {% if error %}
       <div class="error-msg">{{ error }}</div>

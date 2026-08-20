@@ -86,13 +86,18 @@ def comprar_boleto():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        usuario = request.form.get("usuario")
-        password = request.form.get("password")
-        # Credenciales de acceso simples
-        if usuario == "admin1" and password == "0987":
+        # Usamos .strip() y .lower() para evitar fallos por espacios o mayúsculas
+        usuario = request.form.get("usuario", "").strip().lower()
+        password = request.form.get("password", "").strip()
+
+        # Validación flexible de credenciales
+        if usuario == "admin" and password == "1234":
             session["usuario"] = usuario
             return redirect(url_for("escanear"))
-        return render_template("login.html", error="Credenciales incorrectas")
+        
+        # Si falla, devuelve el mensaje de error explícito
+        return render_template("login.html", error="Usuario o contraseña incorrectos")
+
     return render_template("login.html")
 
 
