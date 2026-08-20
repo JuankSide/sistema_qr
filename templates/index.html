@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deportivo Cuenca vs Mushuc Runa</title>
+  <!-- Librería externa para dibujar el código QR -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    /* Estilos para el Modal de Compra y QR */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-card {
+      background: #1e293b;
+      color: white;
+      padding: 25px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 380px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px; right: 15px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #94a3b8;
+    }
+    .form-input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0 15px;
+      border-radius: 6px;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: white;
+      box-sizing: border-box;
+    }
+    .btn-confirm {
+      width: 100%;
+      padding: 12px;
+      background: #22c55e;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    #qrcode-box {
+      background: white;
+      padding: 12px;
+      border-radius: 12px;
+      display: inline-block;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-sitio">LigaPro 2026</div>
+    <nav>
+      <button class="tab-btn active" onclick="openTab('inicio')">Inicio & Onces</button>
+      <button class="tab-btn" onclick="openTab('pronóstico')">Pronósticos</button>
+      <a href="/login" class="tab-btn" style="text-decoration:none; background:#334155; color:white; padding:8px 12px; border-radius:6px;">🔒 Admin</a>
+    </nav>
+  </header>
+
+  <section id="inicio" class="tab-content active">
+    <div class="match-card">
+      <h2>Próximo Partido - Mañana 7:00 AM</h2>
+      <div class="teams-vs">
+        <div class="team">
+          <img src="https://ssl.gstatic.com/onebox/media/sports/logos/optimized/hRiH4aHgK9mpGD0gjkyHPg_500x500.png" alt="Deportivo Cuenca">
+          <h3>Deportivo Cuenca</h3>
+        </div>
+        <div class="vs">VS</div>
+        <div class="team">
+          <img src="https://ssl.gstatic.com/onebox/media/sports/logos/optimized/XoRiyMsYaN5H2Isk0VqXiw_500x500.png" alt="Mushuc Runa">
+          <h3>Mushuc Runa</h3>
+        </div>
+      </div>
+      
+      <!-- Botón que abre la pasarela/modal -->
+      <button onclick="abrirModalCompra()" class="btn-ticket" style="border:none; cursor:pointer;">¡Compra tu entrada aquí!</button>
+    </div>
+  </section>
+
+  <!-- MODAL FLOTANTE DE PAGO Y DESPLIEGUE DE QR -->
+  <div id="modalCompra" class="modal-overlay">
+    <div class="modal-card">
+      <span class="close-btn" onclick="cerrarModal()">&times;</span>
+
+      <!-- Formulario de Compra -->
+      <div id="pasoPago">
+        <h3>💳 Confirmar Pago</h3>
+        <p style="font-size: 0.85rem; color: #94a3b8;">Ingresa tus datos para registrar la entrada</p>
+        
+        <input type="text" id="nombreCliente" class="form-input" placeholder="Nombre completo" required>
+        <input type="text" id="cedulaCliente" class="form-input" placeholder="Cédula de Identidad" required>
+        
+        <button class="btn-confirm" onclick="realizarPago()">PAGAR $10.00 Y OBTENER QR</button>
+      </div>
+
+      <!-- Área donde aparece el QR despues de comprar -->
+      <div id="pasoQR" style="display: none;">
+        <h3 style="color: #22c55e; margin-bottom: 5px;">🎉 ¡Compra Exitosa!</h3>
+        <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 0;">Presenta este código en la puerta del estadio</p>
+        
+        <div id="qrcode-box"></div>
+        
+        <p id="txtCodigoBoleto" style="font-weight: bold; margin-top: 12px; color: #38bdf8;"></p>
+        <button onclick="cerrarModal()" class="btn-confirm" style="background:#475569; margin-top:10px;">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openTab(tabName) {
+      const contents = document.querySelectorAll('.tab-content');
+      contents.forEach(c => c.classList.remove('active'));
+      document.getElementById(tabName).classList.add('active');
+    }
+
+    function abrirModalCompra() {
+      document.getElementById('modalCompra').style.display = 'flex';
+      document.getElementById('pasoPago').style.display = 'block';
+      document.getElementById('pasoQR').style.display = 'none';
+    }
+
+    function cerrarModal() {
+      document.getElementById('modalCompra').style.display = 'none';
+    }
+
+    async function realizarPago() {
+      const nombre = document.getElementById('nombreCliente').value.trim();
+      const cedula = document.getElementById('cedulaCliente').value.trim();
+
+      if (!nombre || !cedula) {
+        alert("⚠️ Por favor completa tu nombre y cédula.");
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/comprar_boleto", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nombre: nombre, cedula: cedula })
+        });
+
+        const data = await response.json();
+
+        if (data.status === "exito") {
+          // Ocultar formulario y mostrar ventana de QR
+          document.getElementById('pasoPago').style.display = 'none';
+          document.getElementById('pasoQR').style.display = 'block';
+          document.getElementById('txtCodigoBoleto').innerText = "ID Boleto: " + data.codigo;
+
+          // Dibujar el código QR en pantalla
+          document.getElementById('qrcode-box').innerHTML = "";
+          new QRCode(document.getElementById("qrcode-box"), {
+            text: data.codigo,
+            width: 180,
+            height: 180
+          });
+        } else {
+          alert("❌ Error: " + data.mensaje);
+        }
+      } catch (err) {
+        alert("❌ Ocurrió un error al procesar el boleto.");
+      }
+    }
+  </script>
+</body>
+</html>
