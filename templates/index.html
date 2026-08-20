@@ -6,122 +6,343 @@
   <title>Deportivo Cuenca vs Mushuc Runa</title>
   <!-- Librería externa para dibujar el código QR -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  
   <style>
-    /* Estilos para el Modal de Compra y QR */
+    /* Estilos base del sitio */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #1e293b;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .logo-sitio {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    nav {
+      display: flex;
+      gap: 10px;
+    }
+
+    .tab-btn {
+      background-color: #334155;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .tab-btn.active {
+      background-color: #007bff;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Tarjeta del partido */
+    .match-card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    .match-card h2 {
+      margin-top: 0;
+      color: #333;
+    }
+
+    .teams-vs {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      margin: 20px 0;
+    }
+
+    .team {
+      text-align: center;
+      width: 150px;
+    }
+
+    .team img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+    }
+
+    .vs {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #666;
+    }
+
+    .btn-ticket {
+      background-color: #28a745;
+      color: white;
+      padding: 12px 25px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    /* Alineaciones Grid */
+    .lineups-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .lineup-box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .lineup-box h3 {
+      margin-top: 0;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 8px;
+    }
+
+    .lineup-box ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .lineup-box li {
+      padding: 6px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.95rem;
+    }
+
+    /* Pronósticos */
+    .forecast-card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .badge {
+      background-color: #007bff;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      display: inline-block;
+      margin-top: 5px;
+    }
+
+    /* Estilos del Modal emergente de Compra y QR */
     .modal-overlay {
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,0.7);
       justify-content: center;
       align-items: center;
       z-index: 1000;
     }
+
     .modal-card {
-      background: #1e293b;
-      color: white;
+      background: white;
+      color: #333;
       padding: 25px;
-      border-radius: 16px;
+      border-radius: 12px;
       width: 90%;
       max-width: 380px;
       text-align: center;
       position: relative;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
     }
+
     .close-btn {
       position: absolute;
       top: 10px; right: 15px;
       font-size: 1.5rem;
       cursor: pointer;
-      color: #94a3b8;
+      color: #888;
     }
+
     .form-input {
       width: 100%;
       padding: 10px;
       margin: 8px 0 15px;
       border-radius: 6px;
-      border: 1px solid #475569;
-      background: #0f172a;
-      color: white;
+      border: 1px solid #ccc;
       box-sizing: border-box;
     }
+
     .btn-confirm {
       width: 100%;
       padding: 12px;
-      background: #22c55e;
+      background-color: #28a745;
       color: white;
       font-weight: bold;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
       font-size: 1rem;
     }
+
     #qrcode-box {
       background: white;
-      padding: 12px;
-      border-radius: 12px;
+      padding: 10px;
+      border-radius: 8px;
       display: inline-block;
       margin-top: 15px;
+      border: 1px solid #ddd;
     }
   </style>
 </head>
 <body>
 
+  <!-- Encabezado -->
   <header>
     <div class="logo-sitio">LigaPro 2026</div>
     <nav>
       <button class="tab-btn active" onclick="openTab('inicio')">Inicio & Onces</button>
       <button class="tab-btn" onclick="openTab('pronóstico')">Pronósticos</button>
-      <a href="/login" class="tab-btn" style="text-decoration:none; background:#334155; color:white; padding:8px 12px; border-radius:6px;">🔒 Admin</a>
     </nav>
   </header>
 
+  <!-- Pestaña 1: Inicio / Onces Iniciales -->
   <section id="inicio" class="tab-content active">
+    
     <div class="match-card">
       <h2>Próximo Partido - Mañana 7:00 AM</h2>
       <div class="teams-vs">
+        <!-- Lado Izquierdo: Deportivo Cuenca -->
         <div class="team">
           <img src="https://ssl.gstatic.com/onebox/media/sports/logos/optimized/hRiH4aHgK9mpGD0gjkyHPg_500x500.png" alt="Deportivo Cuenca">
           <h3>Deportivo Cuenca</h3>
         </div>
+        
         <div class="vs">VS</div>
+        
+        <!-- Lado Derecho: Mushuc Runa -->
         <div class="team">
           <img src="https://ssl.gstatic.com/onebox/media/sports/logos/optimized/XoRiyMsYaN5H2Isk0VqXiw_500x500.png" alt="Mushuc Runa">
           <h3>Mushuc Runa</h3>
         </div>
       </div>
       
-      <!-- Botón que abre la pasarela/modal -->
-      <button onclick="abrirModalCompra()" class="btn-ticket" style="border:none; cursor:pointer;">¡Compra tu entrada aquí!</button>
+      <!-- Botón de compra -->
+      <button onclick="abrirModalCompra()" class="btn-ticket">¡Compra tu entrada aquí!</button>
     </div>
+
+    <!-- Alineaciones Lado a Lado -->
+    <div class="lineups-grid">
+      <!-- Lado Izquierdo: D. Cuenca -->
+      <div class="lineup-box">
+        <h3>🔴 Deportivo Cuenca</h3>
+        <ul>
+          <li><strong>POR:</strong> Facundo Ferrero</li>
+          <li><strong>DEF:</strong> Marco A. Bonilla</li>
+          <li><strong>DEF:</strong> Mateo Piedra</li>
+          <li><strong>DEF:</strong> Eddie Guevara</li>
+          <li><strong>DEF:</strong> Yeltzin Erique</li>
+          <li><strong>MED:</strong> Mateo Maccari</li>
+          <li><strong>MED:</strong> Édison Vega</li>
+          <li><strong>MED:</strong> David González</li>
+          <li><strong>DEL:</strong> Lucas Mancinelli</li>
+          <li><strong>DEL:</strong> Matías Klimowicz</li>
+          <li><strong>DEL:</strong> Melvin Díaz</li>
+        </ul>
+      </div>
+
+      <!-- Lado Derecho: Mushuc Runa -->
+      <div class="lineup-box">
+        <h3>🟢 Mushuc Runa S.C.</h3>
+        <ul>
+          <li><strong>POR:</strong> Rodrigo Formento</li>
+          <li><strong>DEF:</strong> Kevin Peralta</li>
+          <li><strong>DEF:</strong> Brian Negro</li>
+          <li><strong>DEF:</strong> Manuel J. Hernández</li>
+          <li><strong>DEF:</strong> Cristopher Angulo</li>
+          <li><strong>MED:</strong> Esteban Dávila</li>
+          <li><strong>MED:</strong> Lucas Lemos</li>
+          <li><strong>MED:</strong> Elvis Velasco</li>
+          <li><strong>DEL:</strong> Renato Ibarra</li>
+          <li><strong>DEL:</strong> Facundo Castelli</li>
+          <li><strong>DEL:</strong> Ronie Carrillo</li>
+        </ul>
+      </div>
+    </div>
+
   </section>
 
-  <!-- MODAL FLOTANTE DE PAGO Y DESPLIEGUE DE QR -->
+  <!-- Pestaña 2: Pronósticos -->
+  <section id="pronóstico" class="tab-content">
+    
+    <div class="forecast-card">
+      <h3>Análisis del Encuentro</h3>
+      <p>Partido parejo correspondiente a la fecha 26 de la LigaPro. Deportivo Cuenca busca defender la localía en el Estadio Alejandro Serrano Aguilar, mientras que Mushuc Runa llega con una racha positiva como visitante.</p>
+    </div>
+
+    <div class="forecast-card">
+      <h3>Pronóstico Sugerido</h3>
+      <p><strong>Doble Oportunidad:</strong> Empate o Victoria Visitante (X2)</p>
+      <span class="badge">Marcador Probable: 1-1 / 1-2</span>
+    </div>
+
+  </section>
+
+  <!-- MODAL DE COMPRA Y DESPLIEGUE DE QR -->
   <div id="modalCompra" class="modal-overlay">
     <div class="modal-card">
       <span class="close-btn" onclick="cerrarModal()">&times;</span>
 
       <!-- Formulario de Compra -->
       <div id="pasoPago">
-        <h3>💳 Confirmar Pago</h3>
-        <p style="font-size: 0.85rem; color: #94a3b8;">Ingresa tus datos para registrar la entrada</p>
+        <h3>🎟️ Comprar Entrada</h3>
+        <p style="font-size: 0.85rem; color: #666;">Ingresa tus datos para registrar la entrada</p>
         
         <input type="text" id="nombreCliente" class="form-input" placeholder="Nombre completo" required>
         <input type="text" id="cedulaCliente" class="form-input" placeholder="Cédula de Identidad" required>
         
-        <button class="btn-confirm" onclick="realizarPago()">PAGAR $10.00 Y OBTENER QR</button>
+        <button class="btn-confirm" onclick="realizarPago()">CONFIRMAR COMPRA ($10.00)</button>
       </div>
 
-      <!-- Área donde aparece el QR despues de comprar -->
+      <!-- Paso 2: Código QR generado -->
       <div id="pasoQR" style="display: none;">
-        <h3 style="color: #22c55e; margin-bottom: 5px;">🎉 ¡Compra Exitosa!</h3>
-        <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 0;">Presenta este código en la puerta del estadio</p>
+        <h3 style="color: #28a745; margin-bottom: 5px;">🎉 ¡Compra Exitosa!</h3>
+        <p style="font-size: 0.85rem; color: #555; margin-top: 0;">Presenta este código QR en el control de acceso:</p>
         
         <div id="qrcode-box"></div>
         
-        <p id="txtCodigoBoleto" style="font-weight: bold; margin-top: 12px; color: #38bdf8;"></p>
-        <button onclick="cerrarModal()" class="btn-confirm" style="background:#475569; margin-top:10px;">Cerrar</button>
+        <p id="txtCodigoBoleto" style="font-weight: bold; margin-top: 12px; color: #007bff;"></p>
+        <button onclick="cerrarModal()" class="btn-confirm" style="background:#6c757d; margin-top:10px;">Cerrar</button>
       </div>
     </div>
   </div>
@@ -129,8 +350,13 @@
   <script>
     function openTab(tabName) {
       const contents = document.querySelectorAll('.tab-content');
-      contents.forEach(c => c.classList.remove('active'));
+      const buttons = document.querySelectorAll('.tab-btn');
+
+      contents.forEach(content => content.classList.remove('active'));
+      buttons.forEach(btn => btn.classList.remove('active'));
+
       document.getElementById(tabName).classList.add('active');
+      event.currentTarget.classList.add('active');
     }
 
     function abrirModalCompra() {
@@ -143,44 +369,51 @@
       document.getElementById('modalCompra').style.display = 'none';
     }
 
-    async function realizarPago() {
-      const nombre = document.getElementById('nombreCliente').value.trim();
-      const cedula = document.getElementById('cedulaCliente').value.trim();
+  async function realizarPago() {
+  const nombreInput = document.getElementById('compradorNombre') || document.getElementById('nombreCliente');
+  const cedulaInput = document.getElementById('compradorCedula') || document.getElementById('cedulaCliente');
 
-      if (!nombre || !cedula) {
-        alert("⚠️ Por favor completa tu nombre y cédula.");
-        return;
-      }
+  const nombre = nombreInput ? nombreInput.value.trim() : "";
+  const cedula = cedulaInput ? cedulaInput.value.trim() : "";
 
-      try {
-        const response = await fetch("/api/comprar_boleto", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nombre: nombre, cedula: cedula })
-        });
+  if (!nombre || !cedula) {
+    alert("⚠️ Ingresa nombre y cédula.");
+    return;
+  }
 
-        const data = await response.json();
+  try {
+    const response = await fetch("/api/comprar_boleto", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nombre: nombre, cedula: cedula })
+    });
 
-        if (data.status === "exito") {
-          // Ocultar formulario y mostrar ventana de QR
-          document.getElementById('pasoPago').style.display = 'none';
-          document.getElementById('pasoQR').style.display = 'block';
-          document.getElementById('txtCodigoBoleto').innerText = "ID Boleto: " + data.codigo;
+    const data = await response.json();
 
-          // Dibujar el código QR en pantalla
-          document.getElementById('qrcode-box').innerHTML = "";
-          new QRCode(document.getElementById("qrcode-box"), {
-            text: data.codigo,
-            width: 180,
-            height: 180
-          });
-        } else {
-          alert("❌ Error: " + data.mensaje);
-        }
-      } catch (err) {
-        alert("❌ Ocurrió un error al procesar el boleto.");
-      }
+    if (response.ok && data.status === "exito") {
+      // Ocultar formulario y mostrar QR
+      const formulario = document.getElementById('pasoPago') || document.querySelector('.modal-card');
+      
+      document.getElementById('pasoPago').style.display = 'none';
+      document.getElementById('pasoQR').style.display = 'block';
+      document.getElementById('txtCodigoBoleto').innerText = "ID Boleto: " + data.codigo;
+
+      const qrContainer = document.getElementById('qrcode-box') || document.getElementById('qrcode');
+      qrContainer.innerHTML = "";
+      new QRCode(qrContainer, {
+        text: data.codigo,
+        width: 180,
+        height: 180
+      });
+    } else {
+      alert("❌ Error desde el servidor: " + (data.mensaje || "Respuesta no válida"));
     }
+  } catch (err) {
+    console.error("Detalle del error:", err);
+    alert("❌ Error de red: Asegúrate de que python app.py esté corriendo en la terminal.");
+  }
+}
   </script>
+
 </body>
 </html>
