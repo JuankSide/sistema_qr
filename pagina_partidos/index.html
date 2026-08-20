@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deportivo Cuenca vs Mushuc Runa</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Encabezado con menú a la derecha -->
+  <header>
+    <div class="logo-sitio">LigaPro 2026</div>
+    <nav>
+      <button class="tab-btn active" onclick="openTab('inicio')">Inicio & Onces</button>
+      <button class="tab-btn" onclick="openTab('pronóstico')">Pronósticos</button>
+    </nav>
+  </header>
+
+  <!-- Pestaña 1: Inicio / Onces Iniciales -->
+  <section id="inicio" class="tab-content active">
+    
+    <div class="match-card">
+      <h2>Próximo Partido - Mañana 7:00 AM</h2>
+      <div class="teams-vs">
+        <!-- Lado Izquierdo: Deportivo Cuenca -->
+        <div class="team">
+          <img src="https://ssl.gstatic.com/onebox/media/sports/logos/optimized/hRiH4aHgK9mpGD0gjkyHPg_500x500.png" alt="Deportivo Cuenca">
+          <h3>Deportivo Cuenca</h3>
+        </div>
+        
+        <div class="vs">VS</div>
+        
+        <!-- Lado Derecho: Mushuc Runa -->
+        <div class="team">
+          <img src="https://ssl.gstatic.com/onebox/media/sports/logos/optimized/XoRiyMsYaN5H2Isk0VqXiw_500x500.png" alt="Mushuc Runa">
+          <h3>Mushuc Runa</h3>
+        </div>
+      </div>
+      
+      <!-- Botón de compra de entradas -->
+      <a href="https://www.clubdeportivocuenca.com/" target="_blank" class="btn-ticket">¡Compra tu entrada aquí!</a>
+    </div>
+
+    <!-- Alineaciones Lado a Lado -->
+    <div class="lineups-grid">
+      <!-- Lado Izquierdo: D. Cuenca -->
+      <div class="lineup-box">
+        <h3>🔴 Deportivo Cuenca</h3>
+        <ul>
+          <li><strong>POR:</strong> Facundo Ferrero</li>
+          <li><strong>DEF:</strong> Marco A. Bonilla</li>
+          <li><strong>DEF:</strong> Mateo Piedra</li>
+          <li><strong>DEF:</strong> Eddie Guevara</li>
+          <li><strong>DEF:</strong> Yeltzin Erique</li>
+          <li><strong>MED:</strong> Mateo Maccari</li>
+          <li><strong>MED:</strong> Édison Vega</li>
+          <li><strong>MED:</strong> David González</li>
+          <li><strong>DEL:</strong> Lucas Mancinelli</li>
+          <li><strong>DEL:</strong> Matías Klimowicz</li>
+          <li><strong>DEL:</strong> Melvin Díaz</li>
+        </ul>
+      </div>
+
+      <!-- Lado Derecho: Mushuc Runa -->
+      <div class="lineup-box">
+        <h3>🟢 Mushuc Runa S.C.</h3>
+        <ul>
+          <li><strong>POR:</strong> Rodrigo Formento</li>
+          <li><strong>DEF:</strong> Kevin Peralta</li>
+          <li><strong>DEF:</strong> Brian Negro</li>
+          <li><strong>DEF:</strong> Manuel J. Hernández</li>
+          <li><strong>DEF:</strong> Cristopher Angulo</li>
+          <li><strong>MED:</strong> Esteban Dávila</li>
+          <li><strong>MED:</strong> Lucas Lemos</li>
+          <li><strong>MED:</strong> Elvis Velasco</li>
+          <li><strong>DEL:</strong> Renato Ibarra</li>
+          <li><strong>DEL:</strong> Facundo Castelli</li>
+          <li><strong>DEL:</strong> Ronie Carrillo</li>
+        </ul>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Pestaña 2: Pronósticos -->
+  <section id="pronóstico" class="tab-content">
+    
+    <div class="forecast-card">
+      <h3>Análisis del Encuentro</h3>
+      <p>Partido parejo correspondiente a la fecha 26 de la LigaPro. Deportivo Cuenca busca defender la localía en el Estadio Alejandro Serrano Aguilar, mientras que Mushuc Runa llega con una racha positiva como visitante.</p>
+    </div>
+
+    <div class="forecast-card">
+      <h3>Pronóstico Sugerido</h3>
+      <p><strong>Doble Oportunidad:</strong> Empate o Victoria Visitante (X2)</p>
+      <span class="badge">Marcador Probable: 1-1 / 1-2</span>
+    </div>
+
+  </section>
+
+  <!-- Script para la navegación de pestañas -->
+  <script>
+    function openTab(tabName) {
+      const contents = document.querySelectorAll('.tab-content');
+      const buttons = document.querySelectorAll('.tab-btn');
+
+      contents.forEach(content => content.classList.remove('active'));
+      buttons.forEach(btn => btn.classList.remove('active'));
+
+      document.getElementById(tabName).classList.add('active');
+      event.currentTarget.classList.add('active');
+    }
+  </script>
+
+</body>
+</html>
