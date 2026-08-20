@@ -1,30 +1,78 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso Staff</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
-        h2 { margin-bottom: 20px; color: #333; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
-        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; margin-top: 10px; }
-        button:hover { background: #0056b3; }
-        .error { color: #dc3545; margin-top: 15px; font-size: 0.9rem; font-weight: bold; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de Acceso</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f1f5f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .login-card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 320px;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #1e293b;
+    }
+    .form-input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 0.95rem;
+    }
+    .btn-login {
+      width: 100%;
+      padding: 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .btn-login:hover {
+      background-color: #0056b3;
+    }
+    .error-msg {
+      color: #dc3545;
+      font-weight: bold;
+      margin-top: 15px;
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
 <body>
-    <div class="card">
-        <h2>Control de Acceso</h2>
-        <form method="POST">
-            <input type="text" name="usuario" placeholder="Usuario" required>
-            <input type="password" name="clave" placeholder="Contraseña" required>
-            <button type="submit">Ingresar</button>
-        </form>
-        {% if error %}
-            <div class="error">{{ error }}</div>
-        {% endif %}
-    </div>
+
+  <div class="login-card">
+    <h2>Control de Acceso</h2>
+    
+    <form action="/login" method="POST">
+      <input type="text" name="usuario" class="form-input" placeholder="Usuario" required>
+      <input type="password" name="password" class="form-input" placeholder="Contraseña" required>
+      <button type="submit" class="btn-login">Ingresar</button>
+    </form>
+
+    {% if error %}
+      <div class="error-msg">{{ error }}</div>
+    {% endif %}
+  </div>
+
 </body>
 </html>
