@@ -1,77 +1,331 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Validador de Boletos QR</title>
-    <script src="https://unpkg.com/html5-qrcode"></script>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; background: #f4f4f9; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; max-width: 400px; margin: 0 auto; }
-        #reader { width: 100%; max-width: 400px; margin: 20px auto; border-radius: 10px; overflow: hidden; background: white; }
-        #resultado { margin-top: 20px; font-size: 1.1rem; font-weight: bold; padding: 15px; border-radius: 8px; display: none; max-width: 400px; margin-left: auto; margin-right: auto; }
-        .exito { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-        .btn-logout { background: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; text-decoration: none; font-size: 0.9rem; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de Acceso QR</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    :root {
+      --primary-color: #0d6efd;
+      --success-color: #28a745;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+      --bg-color: #f4f6f9;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: var(--bg-color);
+      padding: 15px;
+      box-sizing: border-box;
+    }
+
+    .card {
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .btn-logout {
+      background: #6c757d;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    #reader {
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px dashed #dee2e6;
+      background-color: #fafafa;
+    }
+
+    .status-box {
+      margin-top: 15px;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      display: none;
+      font-size: 0.95rem;
+    }
+
+    .status-loading { background: #e2e3e5; color: #383d41; display: block; }
+    .status-valid   { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block; }
+    .status-invalid { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
+    .status-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; display: block; }
+
+    .actions, .admin-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .btn-copy     { background: var(--primary-color); color: white; }
+    .btn-scan     { background: #6c757d; color: white; }
+    .btn-info     { background: #17a2b8; color: white; }
+    .btn-reset-db { background: var(--danger-color); color: white; }
+
+    .admin-section {
+      margin-top: 25px;
+      border-top: 2px dashed #e9ecef;
+      padding-top: 20px;
+    }
+
+    .metrics-box {
+      display: flex;
+      justify-content: space-around;
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 12px;
+      border: 1px solid #e9ecef;
+    }
+
+    .metrics-box div { display: flex; flex-direction: column; align-items: center; }
+    .metrics-num { font-size: 1.25rem; font-weight: 700; color: #212529; margin-top: 4px; }
+
+    .table-container {
+      margin-top: 15px;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+    }
+
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .admin-table th, .admin-table td { padding: 10px 8px; text-align: center; border-bottom: 1px solid #dee2e6; }
+    .admin-table th { background-color: #f8f9fa; position: sticky; top: 0; }
+
+    .btn-sm-reactivar {
+      background: var(--success-color);
+      color: white;
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
 
-  <div class="header">
-        <h2>🎟️ Validador</h2>
-        <div>
-            <a href="/reporte" style="background: #28a745; color: white; padding: 8px 12px; border-radius: 5px; text-decoration: none; font-size: 0.9rem; margin-right: 5px;">📊 Reporte</a>
-            <a href="/logout" class="btn-logout">Salir</a>
-        </div>
+  <div class="card">
+    <div class="header-bar">
+      <h2>🎟️ Control de Acceso</h2>
+      <a href="/logout" class="btn-logout">Cerrar Sesión</a>
     </div>
 
+    <p>Apunta con la cámara al código QR para verificarlo</p>
+    
     <div id="reader"></div>
-    <div id="resultado"></div>
+    <div id="statusBox" class="status-box"></div>
 
-    <script>
-        let escaneando = true;
+    <div class="actions">
+      <button id="btnCopy" class="btn-copy" onclick="copiarCodigo()" style="display:none;">Copiar Código</button>
+      <button id="btnReset" class="btn-scan" onclick="reiniciarEscaneo()" style="display:none;">Escanear Otro</button>
+    </div>
 
-        function onScanSuccess(decodedText) {
-            if (!escaneando) return;
-            escaneando = false;
+    <!-- PANEL ADMINISTRATIVO INTEGRADO -->
+    <div class="admin-section">
+      <h3>⚙️ Panel de Administración</h3>
+      
+      <div class="admin-actions">
+        <button class="btn-info" onclick="cargarResumenAdmin()">Actualizar Lista</button>
+        <button class="btn-reset-db" onclick="reactivarTodosBoletos()">Reactivar Todos</button>
+      </div>
 
-            const resDiv = document.getElementById('resultado');
-            resDiv.style.display = 'block';
-            resDiv.className = 'warning';
-            resDiv.innerText = '⏳ Consultando servidor...';
+      <div class="metrics-box">
+        <div><span>Total</span><span id="metricTotal" class="metrics-num">0</span></div>
+        <div><span>🟢 Disponibles</span><span id="metricDisponibles" class="metrics-num">0</span></div>
+        <div><span>🟡 Usados</span><span id="metricUsados" class="metrics-num">0</span></div>
+      </div>
 
-            fetch('/api/validar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ codigo: decodedText })
-            })
-            .then(res => {
-                if (!res.ok) throw new Error('Error en respuesta del servidor');
-                return res.json();
-            })
-            .then(data => {
-                resDiv.className = data.status;
-                resDiv.innerText = data.mensaje;
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Boleto #</th>
+              <th>Estado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tablaUsadosBody">
+            <tr><td colspan="3">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-                setTimeout(() => {
-                    resDiv.style.display = 'none';
-                    escaneando = true;
-                }, 3000);
-            })
-            .catch(err => {
-                resDiv.className = 'error';
-                resDiv.innerText = '❌ Error de comunicación con la base de datos.';
-                console.error(err);
-                setTimeout(() => {
-                    resDiv.style.display = 'none';
-                    escaneando = true;
-                }, 3000);
-            });
+  <script>
+    let html5QrcodeScanner = null;
+    let codigoActual = "";
+    let isProcessing = false;
+
+    async function verificarEstadoQR(codigo) {
+      const statusBox = document.getElementById('statusBox');
+      statusBox.className = "status-box status-loading";
+      statusBox.innerText = "⏳ Consultando base de datos...";
+
+      try {
+        const response = await fetch("/api/validar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ codigo: codigo })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === "exito") {
+          statusBox.className = "status-box status-valid";
+        } else if (data.status === "warning") {
+          statusBox.className = "status-box status-warning";
+        } else {
+          statusBox.className = "status-box status-invalid";
         }
+        
+        statusBox.innerText = data.mensaje;
+        cargarResumenAdmin();
 
-        let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-        html5QrcodeScanner.render(onScanSuccess);
-    </script>
+      } catch (error) {
+        statusBox.className = "status-box status-invalid";
+        statusBox.innerText = "⚠️ Error al conectar con el servidor";
+      } finally {
+        isProcessing = false;
+      }
+    }
+
+    async function onScanSuccess(decodedText) {
+      if (isProcessing) return;
+      isProcessing = true;
+
+      codigoActual = decodedText;
+
+      if (html5QrcodeScanner) {
+        try { await html5QrcodeScanner.clear(); } catch (err) {}
+      }
+
+      document.getElementById('btnCopy').style.display = "block";
+      document.getElementById('btnReset').style.display = "block";
+
+      verificarEstadoQR(decodedText);
+    }
+
+    function iniciarEscaner() {
+      isProcessing = false;
+      document.getElementById('statusBox').style.display = "none";
+      document.getElementById('btnCopy').style.display = "none";
+      document.getElementById('btnReset').style.display = "none";
+
+      html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
+        fps: 10, 
+        qrbox: { width: 220, height: 220 }
+      });
+      
+      html5QrcodeScanner.render(onScanSuccess, () => {});
+    }
+
+    function reiniciarEscaneo() { iniciarEscaner(); }
+
+    async function copiarCodigo() {
+      if (!codigoActual) return;
+      await navigator.clipboard.writeText(codigoActual);
+      alert("📋 Código copiado");
+    }
+
+    async function cargarResumenAdmin() {
+      const tbody = document.getElementById('tablaUsadosBody');
+      try {
+        const response = await fetch('/api/resumen');
+        const data = await response.json();
+
+        document.getElementById('metricTotal').innerText = data.total ?? 0;
+        document.getElementById('metricDisponibles').innerText = data.disponibles ?? 0;
+        document.getElementById('metricUsados').innerText = data.total_usados ?? 0;
+
+        if (!data.usados || data.usados.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3">🟢 No hay boletos usados</td></tr>';
+        } else {
+          let html = '';
+          data.usados.forEach(item => {
+            html += `
+              <tr>
+                <td><strong>${item.codigo}</strong></td>
+                <td><span style="color:#856404; font-weight:bold;">USADO</span></td>
+                <td>
+                  <button class="btn-sm-reactivar" onclick="reactivarUnBoleto('${item.codigo}')">
+                    Reactivar
+                  </button>
+                </td>
+              </tr>`;
+          });
+          tbody.innerHTML = html;
+        }
+      } catch (error) {
+        tbody.innerHTML = '<tr><td colspan="3">❌ Error al cargar datos</td></tr>';
+      }
+    }
+
+    async function reactivarUnBoleto(codigo) {
+      try {
+        // Redirige o llama a la ruta Flask existente
+        const response = await fetch(`/reactivar/${codigo}`);
+        if (response.ok) {
+          cargarResumenAdmin();
+        }
+      } catch (error) {
+        alert("❌ Error al reactivar el boleto.");
+      }
+    }
+
+    async function reactivarTodosBoletos() {
+      if (!confirm("¿Seguro que deseas reactivar TODOS los códigos QR?")) return;
+
+      try {
+        const response = await fetch('/api/reactivar_todos');
+        const data = await response.json();
+        alert(data.mensaje);
+        cargarResumenAdmin();
+      } catch (error) {
+        alert("❌ Error al reactivar todos los códigos.");
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      iniciarEscaner();
+      cargarResumenAdmin();
+    });
+  </script>
 </body>
 </html>
