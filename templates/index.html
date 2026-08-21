@@ -373,17 +373,17 @@
       document.getElementById('modalCompra').style.display = 'none';
     }
 
-  async function realizarPago() {
-  const nombreInput = document.getElementById('compradorNombre') || document.getElementById('nombreCliente');
-  const cedulaInput = document.getElementById('compradorCedula') || document.getElementById('cedulaCliente');
+ async function realizarPago() {
+    const nombreInput = document.getElementById('compradorNombre');
+    const cedulaInput = document.getElementById('compradorCedula');
 
-  const nombre = nombreInput ? nombreInput.value.trim() : "";
-  const cedula = cedulaInput ? cedulaInput.value.trim() : "";
+    const nombre = nombreInput ? nombreInput.value.trim() : "";
+    const cedula = cedulaInput ? cedulaInput.value.trim() : "";
 
-  if (!nombre || !cedula) {
-    alert("⚠️ Ingresa nombre y cédula.");
-    return;
-  }
+    if (nombre === "" || cedula === "") {
+        alert("⚠️ ¡Debes ingresar tu nombre y cédula para generar el boleto!");
+        return;
+    }
 
   try {
     const response = await fetch("/api/comprar_boleto", {
